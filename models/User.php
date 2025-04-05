@@ -27,6 +27,21 @@ Class User{
         }
         
     }
+    public function validate($id)
+    {
+        try
+        {
+           $query = "SELECT * FROM Users WHERE user_id = ?";
+           $stmt = $this->conn->prepare($query);
+           $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        catch(Exception $e){
+            echo "Error: " . $e->getMessage();
+        }
+   
+    
+    }
     public function CreateData()
     {
         try{
@@ -57,11 +72,14 @@ Class User{
     public function updateUser($id ){
         try{
             $query = "UPDATE Users SET username = :username, email = :email, password = :password WHERE user_id = :id";
-            $stmt = $this->conn->prepare($query ,[$id]);
+            $stmt = $this->conn->prepare($query);
+            $password = $this->data->password;
+            $hash_passwords = password_hash($password,PASSWORD_DEFAULT);
             $result = $stmt->execute([
                 ':username' => $this->data->username,
                 ':email' => $this->data->email,
-                ':password' => $this->data->password,
+                ':password' => $hash_passwords,
+                ':id' => $id
             ]);
             if ($result) {
                 echo json_encode(['message' => 'Data updated successfully']);

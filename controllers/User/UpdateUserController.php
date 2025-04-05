@@ -1,11 +1,10 @@
 <?php 
 require '../Backends/models/User.php' ;
-if(isset($_GET['id']))
+if($id != null)
 {
-    $id = $_GET['id'];
-    echo json_encode($id);
     $user = new User($conn);
     $user->updateUser($id);
+    
 }
 
 ?>
