@@ -43,7 +43,23 @@ $routes =
    "PUT" => $id ? "./controllers/Tasks/UpdataController.php" : null,
    "DELETE" => $id ? "./controllers/Tasks/deleteController.php" : null,
    
+   ],
+   "note" => 
+   [
+     "GET" => $id ? "./controllers/note/ShowController.php" : "./controllers/note/indexController.php",
+     "POST" => "./controllers/note/StoreController.php",
+     "PUT" => $id ? "./controllers/note/UpdateController.php" : null,
+     "DELETE" => $id ? "./controllers/note/DestroyController.php" : null,
+   ],
+   "suggestion" =>
+   [
+     "GET" => $id ? "./controllers/TaskSuggestion/ShowContoller.php" : "./controllers/TaskSuggestion/IndexController.php",
+     "POST" => "./controllers/TaskSuggestion/StoreController.php",
+     "PUT" => $id ? "./controllers/TaskSuggestion/UpdataController.php" : null,
+     "DELETE" => $id ? "./controllers/TaskSuggestion/deleteController.php" : null 
    ]
+   
+
 ];
 
 
