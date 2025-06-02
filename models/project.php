@@ -60,11 +60,11 @@ public function StoreData()
     ]);
     if ($result) 
     {
-    echo json_encode(['message' => 'Project inserted successfully']);
+    echo json_encode(['message' => 'Project inserted successfully', "status" => 201]);
     }   
     else
     {
-    echo json_encode(['message' => 'Error inserting projects']);
+    echo json_encode(['message' => 'Error inserting projects',"status" => 404]);
     }
    }
    catch(Exception $e)
@@ -114,7 +114,7 @@ public function Delete($id){
         $query = "DELETE FROM projects WHERE project_id = :id";
         $smtm = $this->conn->prepare($query);
         $result = $smtm->execute([":id"=> $id] );
-        if ($result) {
+        if ($result && $smtm->rowCount() > 0) {
             echo json_encode(['message' => 'Project deleted successfully']);
         } else {
             echo json_encode(['message' => 'Error deleting project']);
@@ -137,10 +137,10 @@ public function Update($id)
         ":project_status" => $this->data->project_status,
         ":project_id" => $id,
         ]);
-        if ($result) {
-            echo json_encode(['message' => 'Project updated successfully']);
+        if ($result && $stmt->rowCount() > 0 ) {
+            echo json_encode(['message' => 'Project updated successfully',"status" => 200]);
         } else {
-            echo json_encode(['message' => 'Error updating project']);
+            echo json_encode(['message' => 'Error updating project',"status" => 404]);
         }
 
     }

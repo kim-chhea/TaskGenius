@@ -27,14 +27,29 @@ Class User{
         }
         
     }
-    public function validate($id)
+    public function validateLogin($email, $username, $password)
     {
         try
         {
-           $query = "SELECT * FROM Users WHERE user_id = ?";
+           $query = "SELECT * FROM Users WHERE email = ? AND username = ?";
            $stmt = $this->conn->prepare($query);
-           $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+           $stmt->execute([$email, $username]);
+           $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user) 
+            {
+                $storePW = $user['password'];
+                // $password_hash = password_hash($password);
+                if ( password_verify($password, $storePW)
+                )
+                {
+                    return $user; 
+                } else {
+                    return null; 
+                }
+            } else 
+            {
+                return null; 
+            }
         }
         catch(Exception $e){
             echo "Error: " . $e->getMessage();
@@ -56,11 +71,11 @@ Class User{
             ]);
             if ($result) 
             {
-            echo json_encode(['message' => 'Data inserted successfully']);
+            echo json_encode(['message' => 'Data inserted successfully', "status" => 201]);
             }   
             else
             {
-            echo json_encode(['message' => 'Error inserting data']);
+            echo json_encode(['message' => 'Error inserting data',"status" => 404]);
             }
         }
         catch(Exception $e)
@@ -81,10 +96,10 @@ Class User{
                 ':password' => $hash_passwords,
                 ':id' => $id
             ]);
-            if ($result) {
-                echo json_encode(['message' => 'Data updated successfully']);
+            if ($result && $stmt->rowCount() > 0) {
+                echo json_encode(['message' => 'Data updated successfully',"status" => 200]);
             } else {
-                echo json_encode(['message' => 'Error updating data']);
+                echo json_encode(['message' => 'Error updating data', "status"=> 404]);
             }
         }
         catch(Exception $e)
@@ -110,10 +125,10 @@ public function deleteUser($id){
         $query = "DELETE FROM Users WHERE user_id = ?";
         $stmt = $this->conn->prepare($query);
         $result = $stmt->execute([$id]);
-        if ($result) {
-            echo json_encode(['message' => 'Data deleted successfully']);
+        if ($result  && $stmt->rowCount() > 0){
+            echo json_encode(['message' => 'Data deleted successfully',"status" => 200]);
         } else {
-            echo json_encode(['message' => 'Error deleting data']);
+            echo json_encode(['message' => 'Error deleting data , ID not found' , "status" => 404]);
         }
     }
     catch(Exception $e)

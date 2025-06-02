@@ -1,11 +1,12 @@
 <?php
+require_once './middlewares/auth.php';
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Headers: Content-Type");
-// echo "hello";
-require "../Backends/database/db.php";
 
+require "../Backends/database/db.php";
+// if (authenticate()) {
 $uri = parse_url($_SERVER['REQUEST_URI'])['path'];
 $currentMethods = $_SERVER['REQUEST_METHOD'];
 $uri_parts = explode("/", trim($uri, "/"));
@@ -16,11 +17,11 @@ $ID = isset($uri_parts[2]) ?  $uri_parts [2] : null;
 // echo $id;
 $routes = 
 [
-   'User' =>
+   'user' =>
    [
-   'POST' => 
+   'POST' =>  
    [
-    'login' => $ID ? './controllers/User/UserLoginController.php' : null,
+    'login' =>  './controllers/User/UserLoginController.php' ,
     'register' => './controllers/User/UserRegisterController.php',
    ],
    'GET' =>  $id ? './controllers/User/IndexUserControlle.php' : './controllers/User/GetUserController.php',
@@ -28,7 +29,7 @@ $routes =
    'DELETE' => './controllers/User/DeleteUserController.php',
 ],
 
-   'Project' =>
+   'projects' =>
    [
    "GET"  => $id ? "./controllers/Project/ShowByIdController.php" : "./controllers/Project/IndexController.php",
    "POST" => "./controllers/Project/StoreProjectController.php",
@@ -36,28 +37,36 @@ $routes =
    "DELETE" => $id ? "./controllers/Project/DeleteController.php" : null,
    ] ,
 
-   "Task" =>
+   "tasks" =>
    [
    "GET"  => $id ? "./controllers/Tasks/getByidController.php" : "./controllers/Tasks/indexController.php",
    "POST" => "./controllers/Tasks/StoreController.php",
    "PUT" => $id ? "./controllers/Tasks/UpdataController.php" : null,
    "DELETE" => $id ? "./controllers/Tasks/deleteController.php" : null,
-   
    ],
-   "note" => 
+   "notes" => 
    [
      "GET" => $id ? "./controllers/note/ShowController.php" : "./controllers/note/indexController.php",
      "POST" => "./controllers/note/StoreController.php",
      "PUT" => $id ? "./controllers/note/UpdateController.php" : null,
      "DELETE" => $id ? "./controllers/note/DestroyController.php" : null,
    ],
-   "suggestion" =>
+   "suggestions" =>
    [
      "GET" => $id ? "./controllers/TaskSuggestion/ShowContoller.php" : "./controllers/TaskSuggestion/IndexController.php",
      "POST" => "./controllers/TaskSuggestion/StoreController.php",
      "PUT" => $id ? "./controllers/TaskSuggestion/UpdataController.php" : null,
      "DELETE" => $id ? "./controllers/TaskSuggestion/deleteController.php" : null 
-   ]
+   ],
+   "profiles" =>
+   [
+      "GET" => $id ? "./controllers/Profiles/ShowCotroller.php"  : "./controllers/Profiles/IndexController.php",
+      "POST" => "./controllers/Profiles/StoreController.php",
+      "PUT" => $id ? "./controllers/Profiles/UpdateController.php"  : null,
+      "DELETE" => $id ? "./controllers/Profiles/DeleteController.php"  : null,
+   ],
+   
+   
    
 
 ];
@@ -81,13 +90,18 @@ if(isset($routes[$baseRoute]))
         }
         else
         {
-            echo json_encode(['error' => 'Action not found']);
+            echo json_encode(['error' => 'Endpoint not found']);
         }
         
      }
      else
-     {
-        require $routes[$baseRoute][$currentMethods];
+     { 
+        if(authenticate())
+        {
+         echo json_encode(["message" => "Access granted to protected data."]);
+         require $routes[$baseRoute][$currentMethods];
+        }
+        
      }
     }
     else
@@ -95,6 +109,8 @@ if(isset($routes[$baseRoute]))
     echo json_encode(['error' => 'Method not allowed']);
     }
 }
+// }
+
 
 else
 {
